@@ -1,0 +1,25 @@
+services:
+  web:
+    build: .
+    image: tidewater-web:secure
+    container_name: tidewater
+    ports:
+      - "80:80"
+    # No docker.sock mount, no env file, no secrets
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run/apache2
+      - /var/lock/apache2
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE   # bind port 80
+      - SETUID             # Apache drops workers to www-data
+      - SETGID
+      - KILL               # master signals its workers
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 200
+    mem_limit: 256m
+    restart: unless-stopped
